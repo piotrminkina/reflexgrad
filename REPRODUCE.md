@@ -17,6 +17,14 @@ export OPENROUTER_MODEL=qwen/qwen3-8b
 export OPENROUTER_FAST_MODEL=qwen/qwen3-8b
 ```
 
+> **Maintenance note (issue #1).** `enhanced_logging.py` and `universal_memory_system.py`
+> were imported by the released code but missing from the repository; they are now included
+> unchanged from the version the released code was developed against. `universal_memory_system.py`
+> creates and reads `./universal_memory/` in the **current working directory** at import time, so
+> run from a fresh directory (or clear that folder) between independent experiments.
+> Checks: `python -m unittest discover -s tests -v`. This note reflects an import/packaging fix only;
+> it does not re-verify any reported paper number.
+
 All headline runs use **no demonstrations**, `max_steps=15`, and the fixed seed list
 `{42, 123, 456, 789, 1024, 1337, 2025, 3141, 5926, 7531}` (n=10).
 
