@@ -18,7 +18,7 @@ np.random.seed(_seed)
 
 # Configure ALFWorld to use official benchmark (134 evaluation tasks)
 # This ensures publication-level research with standardized evaluation
-os.environ['ALFWORLD_DATA'] = os.path.expanduser('~/.cache/alfworld')
+os.environ.setdefault('ALFWORLD_DATA', os.path.expanduser('~/.cache/alfworld'))
 
 # Parse args early to determine model provider
 parser_early = argparse.ArgumentParser(add_help=False)
