@@ -58,6 +58,16 @@ _MAX_PARALLEL_MAIN, _STAGGER_DELAY = _get_rate_config(_default_model)
 _MAX_PARALLEL_FAST, _ = _get_rate_config(_fast_model_name)
 
 
+def _sampling_kwargs(model_name: str, temperature: float, max_tokens: int) -> dict:
+    """Qwen thinking models: the reasoning trace counts against max_tokens, so leave the
+    output budget to the server (remaining context). Recommended sampling differs per Qwen
+    generation and low/greedy temperatures cause endless repetition, so defer to the model's
+    generation_config.json (served with vLLM's default `--generation-config auto`)."""
+    if "qwen" not in model_name.lower():
+        return {"temperature": temperature, "max_tokens": max_tokens}
+    return {}
+
+
 # -------------------- Main Model Wrapper --------------------
 class vLLMModelWrapper:
     def __init__(self, model_name: str = None):
@@ -104,8 +114,7 @@ class vLLMModelWrapper:
                 resp = client.chat.completions.create(
                     model=self.model_name,
                     messages=[{"role": "user", "content": prompt}],
-                    max_tokens=max_output_tokens,
-                    temperature=0.2,
+                    **_sampling_kwargs(self.model_name, 0.2, max_output_tokens),
                 )
                 result = resp.choices[0].message.content if resp.choices else ""
 
@@ -241,8 +250,11 @@ class FastModelWrapper:
                     resp = client.chat.completions.create(
                         model=self.model_name,
                         messages=[{"role": "user", "content": prompt}],
-                        temperature=getattr(sampling_params, 'temperature', 0.0) if sampling_params else 0.0,
-                        max_tokens=safe_tokens,
+                        **_sampling_kwargs(
+                            self.model_name,
+                            getattr(sampling_params, 'temperature', 0.0) if sampling_params else 0.0,
+                            safe_tokens,
+                        ),
                     )
                     result = resp.choices[0].message.content
                     if not result or len(result.strip()) == 0:
