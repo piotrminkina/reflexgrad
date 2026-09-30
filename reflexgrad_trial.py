@@ -4519,7 +4519,7 @@ def adaptive_env_interaction_batch(
 
     # Dynamic limit based on action space complexity
     # INCREASED: 21 → 28 to give agent more room for exploration and self-correction
-    max_steps = 55
+    max_steps = int(os.getenv("REFLEXGRAD_MAX_STEPS", "55"))
 
     # DASHBOARD: Initialize live state for first environment
     if env_states:
