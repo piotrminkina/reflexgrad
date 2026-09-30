@@ -14795,7 +14795,9 @@ def run_trial(
             to_print=True,
             initial_obs_list=batch_initial_obs,
             trial_log_path=trial_log_path,
-            env_configs=env_configs,
+            # The batch function indexes env_configs by batch-local env id, so pass this batch's
+            # configs (same dict objects, so updates land in the full list).
+            env_configs=[env_configs[i] for i in batch_indices],
             trial_idx=trial_idx,
             use_memory=use_memory
         )
